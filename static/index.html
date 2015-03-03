@@ -304,17 +304,17 @@ function getRandomColor() {
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
     //var rand = getRandomColor();
-    addEntityWithoutName({'x':x,'y':y,'colour':'red','radius':20});
+    addEntityWithoutName({'x':x,'y':y,'colour':getRandomColor(),'radius':20});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
     //var rand = getRandomColor();
-    addEntityWithoutName({'x':x,'y':y,'colour':'red','radius':20});
+    addEntityWithoutName({'x':x,'y':y,'colour':getRandomColor(),'radius':20});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
     //var rand = getRandomColor();
-    addEntityWithoutName({'x':x,'y':y,'colour':'red',
+    addEntityWithoutName({'x':x,'y':y,'colour':getRandomColor(),
                           'radius':20});
 });
 
