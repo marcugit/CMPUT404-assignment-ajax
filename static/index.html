@@ -30,30 +30,71 @@ var host = window.location.host;
 var context = canvas.getContext("2d");
 var W = canvas.width  = window.innerWidth-6;
 var H = canvas.height = window.innerHeight-50;
-
+world = {};
 
 function sendJSONXMLHTTPRequest(url, objects, callback) {
     var xhr = new XMLHttpRequest();
+    
     xhr.onreadystatechange = function () {
         if (xhr.readyState==4) {
             try {
                 if (xhr.status==200) {
-                    //XXX: parse some JSON from the request!
+                    
+                    var resp = JSON.parse(xhr.responseText);
                     //XXX: Pass the data to the callback!
+                    
+                    callback();
                 }
+                
             } 
             catch(e) {
                 alert('Error: ' + e.name);
             }
         }
     };
+    
+    xhr.open('POST', url);
+    xhr.setRequestHeader("Content-type", "application/json");
+    //xhr.setRequestHeader("Data-type", "json");
+    //xhr.setRequestHeader("Content-length", objects.length);
+    xhr.send(JSON.stringify(objects));
     //XXX: POST to a URL
     //XXX: set the mimetype and the accept headers!
     // Remember to use application/json !
 }
 
 
-world = {};
+
+function sendJSONGETRequest(url, callback) {
+    var xhr = new XMLHttpRequest();
+   
+    //xhr.setRequestHeader("Content-type", "applicaiton/json");
+    //xhr.setRequestHeader("Content-length", objects.length);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState==4) {
+            try {
+                if (xhr.status==200) {
+                    
+                    world = JSON.parse(xhr.responseText);
+                    //XXX: Pass the data to the callback!
+                    callback();
+                }
+            }
+            catch(e) {
+                alert('Error: ' + e.name);
+            }
+        }
+    };
+    
+    
+    //xhr.setRequestHeader("Content-type", "applicaiton/json");
+    xhr.open('GET', url);
+    xhr.send();
+    
+}
+
+
+
 
 //XXX: TODO Make this prettier!
 function drawCircle(context,entity) {
@@ -136,9 +177,13 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
-    drawNextFrame(); // (but should we?)
-    //XXX: Send a XHTML Request that updates the entity you just  modified!
-
+    //drawNextFrame(); // (but should we?)
+    //XXX: Send a XHTML Request that updates the entity you just modified!
+    sendJSONXMLHTTPRequest("/entity/"+entity, data, drawFrame);
+    
+    //drawNextFrame();
+    //drawFrame();
+  
 }
 
 var counter = 0;
@@ -244,24 +289,46 @@ mouse = (function() {
     return self;
 })();
 
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    //var rand = getRandomColor();
+    addEntityWithoutName({'x':x,'y':y,'colour':'red','radius':20});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    //var rand = getRandomColor();
+    addEntityWithoutName({'x':x,'y':y,'colour':'red','radius':20});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
-                          'radius':10});
+    //var rand = getRandomColor();
+    addEntityWithoutName({'x':x,'y':y,'colour':'red',
+                          'radius':20});
 });
 
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
+   
+    //sendJSONXMLHTTPRequest("http://127.0.0.1:5000/static/index.html", world, drawFrame);
+    
+    drawNextFrame(); //should do call here?
+    
+    sendJSONGETRequest("/world", drawFrame);//or drawFrame
+    
+    drawNextFrame(); //should do call here?
     drawFrame();
 }
 
